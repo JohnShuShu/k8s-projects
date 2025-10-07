@@ -3,8 +3,8 @@
 set -e
 
 # Configuration
-AWS_REGION="us-east-1"
-AWS_ACCOUNT_ID="708959940856"
+AWS_REGION=
+AWS_ACCOUNT_ID=
 IMAGE_NAME="metrics-scraper"
 IMAGE_TAG="latest"
 NAMESPACE="metrics-scraper"
