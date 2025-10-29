@@ -1,0 +1,71 @@
+---
+# CronJob to run the metrics scraper
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: metrics-scraper-cronjob
+  namespace: monitoring
+spec:
+  schedule: "*/2 * * * *"  # Run every 2 minutes
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            app: metrics-scraper
+        spec:
+          serviceAccount: metrics-scraper-sa
+          restartPolicy: OnFailure
+          containers:
+          - name: metrics-scraper
+            image: [aws_account].dkr.ecr.us-east-1.amazonaws.com/metrics-scraper:latest
+            imagePullPolicy: Always
+            env:
+            - name: PAGERDUTY_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: pagerduty-credentials
+                  key: pagerduty-token
+            - name: PAGERDUTY_ROUTING_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: pagerduty-credentials
+                  key: pagerduty-routing-key
+            - name: ALERT_THRESHOLD_MINUTES
+              valueFrom:
+                configMapKeyRef:
+                  name: metrics-scraper-config
+                  key: ALERT_THRESHOLD_MINUTES
+            - name: TARGET_NAMESPACE
+              valueFrom:
+                configMapKeyRef:
+                  name: metrics-scraper-config
+                  key: TARGET_NAMESPACE
+            - name: LOG_LEVEL
+              valueFrom:
+                configMapKeyRef:
+                  name: metrics-scraper-config
+                  key: LOG_LEVEL
+            - name: WATCH_JSON
+              valueFrom:
+                configMapKeyRef:
+                  name: metrics-scraper-config
+                  key: watch.json                  
+            volumeMounts:
+            - name: storage
+              mountPath: /data
+            resources:
+              requests:
+                memory: "64Mi"
+                cpu: "50m"
+              limits:
+                memory: "128Mi"
+                cpu: "100m"
+          volumes:
+          - name: storage
+            persistentVolumeClaim:
+              claimName: metrics-scraper-storage
+      backoffLimit: 3
+      activeDeadlineSeconds: 300  # 5 minutes timeout
+
+
