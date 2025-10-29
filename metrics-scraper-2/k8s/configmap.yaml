@@ -1,0 +1,18 @@
+---
+# ConfigMap for application configuration
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: metrics-scraper-config
+  namespace: monitoring
+data:
+  ALERT_THRESHOLD_MINUTES: "5"
+  TARGET_NAMESPACE: "monitoring"  # Specific namespace or "default" for all
+  LOG_LEVEL: "INFO"
+  watch.json: |
+    [
+      {"namespace": "blog", "kind": "Deployment", "name": "blog", "priority": "p2"},
+      {"namespace": "ingress-nginx", "kind": "Deployment", "name": "ingress-nginx-controller"},
+      {"namespace": "ingress-nginx", "kind": "Deployment", "name": "nginx-ingress-controller"},      
+      {"namespace": "restapi", "kind": "Deployment", "name": "restapi"}
+    ]  
