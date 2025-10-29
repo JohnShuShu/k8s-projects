@@ -1,0 +1,16 @@
+---
+# PersistentVolumeClaim for state storage
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: metrics-scraper-storage
+  namespace: monitoring
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: gp3 # using gp3 storage classes didn't want to create a new class.
+
+
